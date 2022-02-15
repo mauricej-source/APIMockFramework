@@ -1,7 +1,0 @@
-server:
-  port: 8081
-
-appfabric:
-  security:
-    credentials:
-      primary: 2c96af19-971a-4463-b4b6-26e33fa44cae
