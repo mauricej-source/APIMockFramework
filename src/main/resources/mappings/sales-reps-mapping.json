@@ -1,0 +1,39 @@
+{
+  "request": {
+    "url": "/ab/integration/salesforce/v1/sales-reps",
+    "method": "POST",
+    "bodyPatterns": [
+      {
+        "equalToJson": {
+          "id": "a0A6f00000odXqGEAU",
+          "channel": "Channel Name",
+          "manager": {
+            "id": "0054P00000BavueQAB",
+            "firstName": "David",
+            "lastName": "Kaehr",
+            "phoneNumber": "6383655883",
+            "email": "test.rep@email.com"
+          },
+          "position": "RBL",
+          "salesRepAssigned": {
+            "id": "0054P00000BavueQAB",
+            "firstName": "David",
+            "lastName": "Kaehr",
+            "phoneNumber": "6383655883",
+            "email": "test.rep@email.com"
+          },
+          "states": [
+            "string"
+          ],
+          "status": "Active",
+          "territory": "Central (AC)",
+          "code": "VCF00"
+        }
+      }
+    ]
+  },
+  "response": {
+    "status": 201,
+    "bodyFileName": "sales-reps.json"
+  }
+}

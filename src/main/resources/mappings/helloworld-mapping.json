@@ -1,0 +1,10 @@
+{
+  "request": {
+    "url": "/wmf/helloworld",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "helloworld.json"
+  }
+}

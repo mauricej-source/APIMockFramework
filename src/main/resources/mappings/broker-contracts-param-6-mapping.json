@@ -1,0 +1,16 @@
+{
+  "request": {
+    "url": "/ab/integration/salesforce/v1/brokers/brokerIdParam/contracts",
+    "method": "GET",
+    "bodyPatterns": [
+      {
+        "equalToJson": {
+        }
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "broker-contracts-param-6.json"
+  }
+}

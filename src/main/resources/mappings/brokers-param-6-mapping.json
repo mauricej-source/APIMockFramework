@@ -1,0 +1,40 @@
+{
+  "request": {
+    "url": "/ab/integration/salesforce/v1/brokers/brokerIdParam",
+    "method": "PUT",
+    "bodyPatterns": [
+      {
+        "equalToJson": {
+          "name": "Broker Name",
+          "status": "Active",
+          "closeStage": "Debrief",
+          "category": "Standard",
+          "keyBroker": false,
+          "powerBroker": false,
+          "uwOffer": "Regional",
+          "parentCode": "1111",
+          "address": {
+            "countryCd": "US",
+            "addressLine1": "8 10th St",
+            "city": "San Francisco",
+            "stateProvCd": "CA",
+            "postalCode": "94103"
+          },
+          "billingAddress": {
+            "countryCd": "US",
+            "addressLine1": "8 10th St",
+            "city": "San Francisco",
+            "stateProvCd": "CA",
+            "postalCode": "94103"
+          },
+          "phoneNumber": "6383655882",
+          "webAddress": "http://test.weburl.com"
+        }
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "brokers-param-6.json"
+  }
+}
