@@ -1,0 +1,153 @@
+group 'com'
+
+buildscript {
+    ext {
+        springBootVersion = '2.5.4'
+        sys_user = System.env.SYS_USER
+        sys_pass = System.env.SYS_PASSWORD
+    }
+    repositories {
+        maven {
+            url 'artifactoryURLHere'
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath('org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.1.1')
+        classpath('org.jfrog.buildinfo:build-info-extractor-gradle:4.21.0')
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.sonarqube'
+apply plugin: 'jacoco'
+apply plugin: 'maven-publish'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.jfrog.artifactory'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+version = '1.0.0'
+
+if (System.env.BUILD_NUMBER) {
+    version = "1.0.${System.env.BUILD_NUMBER}"
+}
+
+repositories {
+    maven {
+        url 'artifactoryURLHere'
+    }
+}
+
+task zipTestResults(type: Zip) {
+    from projectDir
+    appendix 'audit'
+    include 'build/reports/'
+    include 'build/test-results/'
+    include 'git-commit'
+}
+
+test {
+    testLogging {
+        events = ['passed', 'failed']
+        exceptionFormat = 'full'
+    }
+    outputs.upToDateWhen { false }
+}
+
+bootJar {
+    enabled = true
+    manifest {
+        attributes(
+                'Specification-Version': archiveVersion
+        )
+    }
+}
+
+jar {
+    enabled = false
+}
+
+sonarqube {
+    properties {
+        property 'sonar.projectName','WIREMOCK'
+        property 'sonar.exclusions', ''
+        property 'sonar.host.url', 'sonarqubeURLHere'
+        property 'sonar.login', sys_user
+        property 'sonar.password', sys_pass
+        property 'sonar.sources', 'src/main'
+        property 'sonar.projectKey', 'WIREMOCK'
+    }
+}
+
+publishing {
+    publications {
+        myArtifact(MavenPublication) {
+            from components.java
+            artifactId archivesBaseName
+            artifacts = ["build/libs/wmf-${version}.jar"]
+            //artifact(zipTestResults) {
+            //    classifier 'audit'
+            //}
+        }
+    }
+}
+
+artifactory {
+    contextUrl = 'artifactoryURLHere'
+    publish {
+        repository {
+            repoKey = 'WIREMOCK'
+            username = sys_user
+            password = System.env.SYS_PASSWORD
+        }
+        defaults {
+            properties = ['git.commit': System.env.GITHUB_COMMIT_ID]
+            publications('myArtifact')
+        }
+    }
+    clientConfig.info.setBuildNumber(System.env.BUILD_NUMBER)
+}
+
+test {
+    useJUnitPlatform()
+}
+
+configurations {
+    //compile.exclude module: "spring-boot-starter-tomcat"
+}
+
+dependencies {
+    //implementation 'com.compozed.appfabric:com-compozed-appfabric-starter-api:3.1.7'
+  
+    //Self-Managed Spring Framework Dependencies
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+    implementation 'org.springframework.boot:spring-boot'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-tomcat'
+    implementation 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    implementation 'org.springframework.security:spring-security-config'
+    implementation 'org.springframework.security:spring-security-core'
+    implementation 'org.springframework.security:spring-security-web'
+
+    implementation 'org.springframework:spring-oxm' 
+        
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.core:jackson-core'
+    implementation 'org.json:json:20210307'
+    //---------------------------------------------------------------------\\
+    //testImplementation 'com.compozed.appfabric:com-compozed-appfabric-starter-api-testutils:3.1.7'
+    //testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    //Self-Managed TEST dependencies
+    testImplementation group: 'junit', name: 'junit', version: '4.13'
+}
+
+apply from: "$projectDir/gradle/tests.gradle"

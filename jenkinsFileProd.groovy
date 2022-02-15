@@ -1,0 +1,70 @@
+#!/usr/bin/env groovy
+
+node('linux_agent') {
+    cleanWs()
+    env.FULL_VERSION = "1.0.${env.BUILD_NUMBER_INPUT}"
+
+    def stopBuild = confirmNextStepWithCredentials('deploy to PROD?', 4)
+    if (stopBuild) {
+        return
+    }
+
+    withCredentials([
+            string([credentialsId: 'AuthSecretPROD', variable: 'PRIMARY_CREDENTIAL'])
+    ]) {
+        stage("Deploy PROD") {
+            step([
+                    $class          : 'ConveyorJenkinsPlugin',
+                    organization    : 'WIREMOCK',
+                    space           : 'PROD',
+                    environment     : 'paas-plus-prod-mpn',
+                    applicationName : 'wmf-prod',
+                    artifactURL     : "artifactoryURLHere${env.FULL_VERSION}/wmf-${env.FULL_VERSION}.jar",
+                    serviceNowGroup : 'XP_AS_CHG',
+                    serviceNowUserID: "${env.SNOW_AUTHOR}",
+                    username        : "${env.USERNAME}",
+                    password        : "${env.PASSWORD}",
+                    manifest        : """
+                            applications:
+                            - memory: 1024M
+                              instances: 2
+                              env:
+                                APPFABRIC_SECURITY_CREDENTIALS_PRIMARY: '${PRIMARY_CREDENTIAL}'
+                              buildpacks:
+                                - java_buildpack
+                        """
+            ])
+        }
+
+        stage("Production Number") {
+            println "Build Version: " + env.FULL_VERSION
+        }
+    }
+}
+
+def confirmNextStepWithCredentials(message, count, unit = 'HOURS') {
+    def stopBuild = false
+    def userInput
+
+    try {
+        stage(message) {
+            timeout(time: count, unit: unit) {
+                userInput = input(
+                        id: 'userInput', message: message, parameters: [
+                        [$class: 'TextParameterDefinition', name: 'username'],
+                        [$class: 'hudson.model.PasswordParameterDefinition', name: 'password']])
+            }
+        }
+    }
+    catch (e) {
+        stopBuild = true
+        currentBuild.result = 'SUCCESS'
+    }
+
+    if (!stopBuild) {
+        env.USERNAME = userInput['username']
+        env.PASSWORD = userInput['password']
+    }
+
+    return stopBuild
+}
