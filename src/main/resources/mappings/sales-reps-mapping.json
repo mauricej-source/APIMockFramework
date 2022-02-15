@@ -1,0 +1,39 @@
+{
+  "request": {
+     "url": "/v1/sales-reps",
+     "method": "POST",
+     "bodyPatterns": [
+       {
+         "equalToJson": {
+           "id": "12345",
+           "channel": "Channel Name",
+           "manager": {
+              "id": "678910",
+              "firstName": "Bob",
+              "lastName": "Marley",
+              "phoneNumber": "3125882300",
+              "email": "sales.rep@email.com"
+        },
+        "position": "floor",
+        "salesRepAssigned": {
+           "id": "11121314",
+           "firstName": "Fred",
+           "lastName": "FlintStone",
+           "phoneNumber": "3128675309",
+           "email": "sales.rep@email.com"
+        },
+        "states": [
+          "string"
+        ],
+        "status": "Active",
+        "territory": "EAST C (EC)",
+        "code": "223344"
+        }
+      }
+     ]
+   },
+   "response": {
+     "status": 201,
+     "bodyFileName": sales-reps.json
+   }
+ }
